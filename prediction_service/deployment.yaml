@@ -1,0 +1,43 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: email-classifier-namespace
+  labels:
+    name: email-classifier
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-service
+  namespace: email-classifier-namespace
+spec:
+  selector:
+    app: email-classifier
+  ports:
+    - protocol: "TCP"
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-classifier-deployment
+  namespace: email-classifier-namespace
+spec:
+  selector:
+    matchLabels:
+      app: email-classifier
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: email-classifier
+    spec:
+      containers:
+        - name: email-classifier
+          image: email-classifier:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
